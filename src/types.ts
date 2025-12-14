@@ -16,10 +16,26 @@ export interface PersonConfig extends Omit<
   "technology" | "elementType"
 > {}
 
+export interface SoftwareSystemConfig extends Omit<
+  ElementConfig,
+  "technology" | "elementType"
+> {}
+
+export interface ExternalSoftwareSystemConfig extends Omit<
+  ElementConfig,
+  "technology" | "elementType"
+> {}
+
+export interface ContainerConfig extends Omit<ElementConfig, "elementType"> {}
+
+export interface ComponentConfig extends Omit<ElementConfig, "elementType"> {}
+
 export enum ElementType {
   PERSON = "person",
   SOFTWARE_SYSTEM = "software_system",
-  EXTERNAL_SYSTEM = "external_system",
+  EXTERNAL_SOFTWARE_SYSTEM = "external_software_system",
+  CONTAINER = "container",
+  COMPONENT = "component",
 }
 
 export enum ElementShape {

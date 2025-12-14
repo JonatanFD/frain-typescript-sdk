@@ -1,5 +1,13 @@
 import { Styles } from "./styles";
-import { ElementType, type ElementConfig, type PersonConfig } from "./types";
+import {
+  ElementType,
+  type ElementConfig,
+  type PersonConfig,
+  type SoftwareSystemConfig,
+  type ExternalSoftwareSystemConfig,
+  type ContainerConfig,
+  type ComponentConfig,
+} from "./types";
 import { elementValidator } from "./validations";
 
 export abstract class Element {
@@ -7,7 +15,7 @@ export abstract class Element {
   private description: string;
   private technology: string;
 
-  private styles: Styles;
+  protected styles: Styles;
 
   constructor(config: ElementConfig) {
     const validation = elementValidator.safeParse(config);
@@ -18,7 +26,7 @@ export abstract class Element {
 
     this.name = config.name;
     this.description = config.description;
-    this.technology = config.technology;
+    this.technology = config.technology || "";
     this.styles = new Styles();
   }
 }
@@ -30,29 +38,48 @@ export class Person extends Element {
       elementType: ElementType.PERSON,
       technology: "Person",
     });
+    this.styles = Styles.createPerson();
   }
 }
 
 export class SoftwareSystem extends Element {
-  constructor(config: ElementConfig) {
-    super(config);
+  constructor(config: SoftwareSystemConfig) {
+    super({
+      ...config,
+      elementType: ElementType.SOFTWARE_SYSTEM,
+      technology: "Software System",
+    });
+    this.styles = Styles.createSoftwareSystem();
   }
 }
 
 export class ExternalSoftwareSystem extends Element {
-  constructor(config: ElementConfig) {
-    super(config);
+  constructor(config: ExternalSoftwareSystemConfig) {
+    super({
+      ...config,
+      elementType: ElementType.EXTERNAL_SOFTWARE_SYSTEM,
+      technology: "External Software System",
+    });
+    this.styles = Styles.createExternalSoftwareSystem();
   }
 }
 
 export class Container extends Element {
-  constructor(config: ElementConfig) {
-    super(config);
+  constructor(config: ContainerConfig) {
+    super({
+      ...config,
+      elementType: ElementType.CONTAINER,
+    });
+    this.styles = Styles.createContainer();
   }
 }
 
 export class Component extends Element {
-  constructor(config: ElementConfig) {
-    super(config);
+  constructor(config: ComponentConfig) {
+    super({
+      ...config,
+      elementType: ElementType.COMPONENT,
+    });
+    this.styles = Styles.createComponent();
   }
 }

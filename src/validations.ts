@@ -9,5 +9,5 @@ export const frainConfigValidator = z.object({
 export const elementValidator = z.object({
   name: z.string().min(1).max(100),
   description: z.string().min(1).max(100),
-  technology: z.string().min(1).max(100),
+  technology: z.string().min(1).max(100).optional(),
 });
