@@ -12,16 +12,16 @@ export class Context {
   setTitle(title: string): void {
     if (z.string().min(1).max(100).safeParse(title).success) {
       this.title = title;
+    } else {
+      throw new Error("Error setting title to Context Diagram");
     }
-
-    throw new Error("Error setting title to Context Diagram");
   }
 
   setDescription(description: string): void {
     if (z.string().min(1).max(100).safeParse(description).success) {
       this.description = description;
+    } else {
+      throw new Error("Error setting description to Context Diagram");
     }
-
-    throw new Error("Error setting description to Context Diagram");
   }
 }
