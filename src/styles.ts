@@ -15,8 +15,8 @@ export class Styles {
     const personStyles = new Styles();
 
     personStyles.setShape(ElementShape.PERSON);
-    personStyles.setColor("#00396E");
-    personStyles.setBackgroundColor("#ffffff");
+    personStyles.setColor("#ffffff");
+    personStyles.setBackgroundColor("#003668");
 
     return personStyles;
   }
@@ -25,8 +25,8 @@ export class Styles {
     const styles = new Styles();
 
     styles.setShape(ElementShape.RECTANGLE);
-    styles.setColor("#000000");
-    styles.setBackgroundColor("#ffffff");
+    styles.setColor("#ffffff");
+    styles.setBackgroundColor("#0055A4");
 
     return styles;
   }
@@ -35,8 +35,8 @@ export class Styles {
     const styles = new Styles();
 
     styles.setShape(ElementShape.RECTANGLE);
-    styles.setColor("#666666");
-    styles.setBackgroundColor("#ffffff");
+    styles.setColor("#ffffff");
+    styles.setBackgroundColor("#81788A");
 
     return styles;
   }
@@ -45,8 +45,8 @@ export class Styles {
     const styles = new Styles();
 
     styles.setShape(ElementShape.ROUNDED_BOX);
-    styles.setColor("#000000");
-    styles.setBackgroundColor("#f0f0f0");
+    styles.setColor("#ffffff");
+    styles.setBackgroundColor("#0097D1");
 
     return styles;
   }
@@ -55,8 +55,8 @@ export class Styles {
     const styles = new Styles();
 
     styles.setShape(ElementShape.ROUNDED_BOX);
-    styles.setColor("#000000");
-    styles.setBackgroundColor("#e0e0e0");
+    styles.setColor("#ffffff");
+    styles.setBackgroundColor("#50B5ED");
 
     return styles;
   }
