@@ -8,7 +8,10 @@ import {
   type ContainerConfig,
   type ComponentConfig,
 } from "./types";
-import { elementValidator } from "./validations";
+import {
+  elementValidator,
+  elementWithTechnologyValidator,
+} from "./validations";
 
 export abstract class Element {
   private name: string;
@@ -17,8 +20,11 @@ export abstract class Element {
 
   protected styles: Styles;
 
-  constructor(config: ElementConfig) {
-    const validation = elementValidator.safeParse(config);
+  constructor(config: ElementConfig, requireTechnology: boolean = false) {
+    const validator = requireTechnology
+      ? elementWithTechnologyValidator
+      : elementValidator;
+    const validation = validator.safeParse(config);
 
     if (!validation.success) {
       throw new Error(`Invalid element configuration: ${validation.error}`);
@@ -66,20 +72,26 @@ export class ExternalSoftwareSystem extends Element {
 
 export class Container extends Element {
   constructor(config: ContainerConfig) {
-    super({
-      ...config,
-      elementType: ElementType.CONTAINER,
-    });
+    super(
+      {
+        ...config,
+        elementType: ElementType.CONTAINER,
+      },
+      true,
+    );
     this.styles = Styles.createContainer();
   }
 }
 
 export class Component extends Element {
   constructor(config: ComponentConfig) {
-    super({
-      ...config,
-      elementType: ElementType.COMPONENT,
-    });
+    super(
+      {
+        ...config,
+        elementType: ElementType.COMPONENT,
+      },
+      true,
+    );
     this.styles = Styles.createComponent();
   }
 }

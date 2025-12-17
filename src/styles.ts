@@ -1,14 +1,29 @@
 import { ElementShape } from "./types";
+import { stylesConfigValidator, type StylesConfig } from "./validations";
 
 export class Styles {
   private shape: ElementShape;
   private color: string; // HEX
   private backgroundColor: string; // HEX
 
-  constructor() {
-    this.shape = ElementShape.RECTANGLE;
-    this.color = "#ffffff";
-    this.backgroundColor = "#000000";
+  constructor(config?: Partial<StylesConfig>) {
+    if (config) {
+      const validation = stylesConfigValidator.partial().safeParse(config);
+
+      if (!validation.success) {
+        throw new Error(
+          `Invalid styles configuration: ${validation.error.message}`,
+        );
+      }
+
+      this.shape = validation.data.shape ?? ElementShape.RECTANGLE;
+      this.color = validation.data.color ?? "#ffffff";
+      this.backgroundColor = validation.data.backgroundColor ?? "#000000";
+    } else {
+      this.shape = ElementShape.RECTANGLE;
+      this.color = "#ffffff";
+      this.backgroundColor = "#000000";
+    }
   }
 
   public static createPerson() {
@@ -66,10 +81,26 @@ export class Styles {
   }
 
   public setColor(color: string) {
-    this.color = color;
+    const validation = stylesConfigValidator
+      .pick({ color: true })
+      .safeParse({ color });
+
+    if (!validation.success) {
+      throw new Error(`Invalid color: ${validation.error.message}`);
+    }
+
+    this.color = validation.data.color;
   }
 
   public setBackgroundColor(backgroundColor: string) {
-    this.backgroundColor = backgroundColor;
+    const validation = stylesConfigValidator
+      .pick({ backgroundColor: true })
+      .safeParse({ backgroundColor });
+
+    if (!validation.success) {
+      throw new Error(`Invalid backgroundColor: ${validation.error.message}`);
+    }
+
+    this.backgroundColor = validation.data.backgroundColor;
   }
 }
