@@ -1,27 +1,73 @@
 import z from "zod";
+import {
+  ExternalSoftwareSystem,
+  Person,
+  SoftwareSystem,
+  type Element,
+} from "./element";
+import type {
+  ExternalSoftwareSystemConfig,
+  PersonConfig,
+  SoftwareSystemConfig,
+} from "./types";
 
 export class Context {
   private title: string;
   private description: string;
 
+  private elements: Element[];
+
   constructor() {
     this.title = "";
     this.description = "";
+
+    this.elements = [];
   }
 
-  setTitle(title: string): void {
+  public setTitle(title: string): void {
     if (z.string().min(1).max(100).safeParse(title).success) {
       this.title = title;
-    } else {
-      throw new Error("Error setting title to Context Diagram");
+      return;
     }
+
+    throw new Error("Error setting title to Context Diagram");
   }
 
-  setDescription(description: string): void {
+  public setDescription(description: string): void {
     if (z.string().min(1).max(100).safeParse(description).success) {
       this.description = description;
-    } else {
-      throw new Error("Error setting description to Context Diagram");
+      return;
     }
+
+    throw new Error("Error setting description to Context Diagram");
+  }
+
+  public getTitle(): string {
+    return this.title;
+  }
+
+  public getDescription(): string {
+    return this.description;
+  }
+
+  // Actors
+  public addPerson(config: PersonConfig): Person {
+    const person = new Person(config);
+    this.elements.push(person);
+    return person;
+  }
+
+  public addSoftwareSystem(config: SoftwareSystemConfig): SoftwareSystem {
+    const softwareSystem = new SoftwareSystem(config);
+    this.elements.push(softwareSystem);
+    return softwareSystem;
+  }
+
+  public addExternalSoftwareSystem(
+    config: ExternalSoftwareSystemConfig,
+  ): ExternalSoftwareSystem {
+    const externalSoftwareSystem = new ExternalSoftwareSystem(config);
+    this.elements.push(externalSoftwareSystem);
+    return externalSoftwareSystem;
   }
 }

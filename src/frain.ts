@@ -24,4 +24,8 @@ export class Frain {
     this.apiSecret = config.apiSecret;
     this.context = new Context();
   }
+
+  public getContext(): Context {
+    return this.context;
+  }
 }

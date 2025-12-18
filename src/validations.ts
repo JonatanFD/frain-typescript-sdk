@@ -26,7 +26,7 @@ export const elementWithTechnologyValidator = z.object({
 });
 
 export const stylesConfigValidator = z.object({
-  shape: z.nativeEnum(ElementShape),
+  shape: z.enum(ElementShape),
   color: hexColorValidator,
   backgroundColor: hexColorValidator,
 });

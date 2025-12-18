@@ -20,7 +20,10 @@ export abstract class Element {
 
   protected styles: Styles;
 
-  constructor(config: ElementConfig, requireTechnology: boolean = false) {
+  protected constructor(
+    config: ElementConfig,
+    requireTechnology: boolean = false,
+  ) {
     const validator = requireTechnology
       ? elementWithTechnologyValidator
       : elementValidator;
