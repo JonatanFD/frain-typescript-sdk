@@ -14,6 +14,23 @@ function main() {
 
   context.setTitle("Fake Store API");
   context.setDescription("A fake store API for testing purposes");
+
+  const customer = context.addPerson({
+    name: "Customers",
+    description: "A customer",
+  });
+
+  const fakeStore = context.addSoftwareSystem({
+    name: "Fake Store",
+    description: "A fake store for testing purposes",
+  });
+
+  const stripe = context.addExternalSoftwareSystem({
+    name: "Stripe",
+    description: "A payment processing service",
+  });
+  
+  
 }
 
 main();

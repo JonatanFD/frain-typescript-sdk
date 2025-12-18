@@ -162,4 +162,182 @@ describe("Context", () => {
       expect(() => context.setDescription("Valid Description")).not.toThrow();
     });
   });
+
+  describe("Getters", () => {
+    it("should return empty string for title when not set", () => {
+      const context = new Context();
+      expect(context.getTitle()).toBe("");
+    });
+
+    it("should return empty string for description when not set", () => {
+      const context = new Context();
+      expect(context.getDescription()).toBe("");
+    });
+
+    it("should return the correct title after setting it", () => {
+      const context = new Context();
+      const title = "My Context Title";
+      context.setTitle(title);
+      expect(context.getTitle()).toBe(title);
+    });
+
+    it("should return the correct description after setting it", () => {
+      const context = new Context();
+      const description = "My Context Description";
+      context.setDescription(description);
+      expect(context.getDescription()).toBe(description);
+    });
+
+    it("should return the latest title after multiple sets", () => {
+      const context = new Context();
+      context.setTitle("First Title");
+      context.setTitle("Second Title");
+      const finalTitle = "Final Title";
+      context.setTitle(finalTitle);
+      expect(context.getTitle()).toBe(finalTitle);
+    });
+
+    it("should return the latest description after multiple sets", () => {
+      const context = new Context();
+      context.setDescription("First Description");
+      context.setDescription("Second Description");
+      const finalDescription = "Final Description";
+      context.setDescription(finalDescription);
+      expect(context.getDescription()).toBe(finalDescription);
+    });
+
+    it("should maintain title and description independently", () => {
+      const context = new Context();
+      const title = "Test Title";
+      const description = "Test Description";
+      context.setTitle(title);
+      context.setDescription(description);
+      expect(context.getTitle()).toBe(title);
+      expect(context.getDescription()).toBe(description);
+    });
+  });
+
+  describe("Adding elements", () => {
+    it("should add a Person element", () => {
+      const context = new Context();
+      const person = context.addPerson({
+        name: "User",
+        description: "End user of the system",
+      });
+      expect(person).toBeDefined();
+    });
+
+    it("should add a SoftwareSystem element", () => {
+      const context = new Context();
+      const system = context.addSoftwareSystem({
+        name: "My System",
+        description: "Main software system",
+      });
+      expect(system).toBeDefined();
+    });
+
+    it("should add an ExternalSoftwareSystem element", () => {
+      const context = new Context();
+      const externalSystem = context.addExternalSoftwareSystem({
+        name: "External API",
+        description: "Third-party service",
+      });
+      expect(externalSystem).toBeDefined();
+    });
+
+    it("should add multiple Person elements", () => {
+      const context = new Context();
+      const person1 = context.addPerson({
+        name: "User 1",
+        description: "First user",
+      });
+      const person2 = context.addPerson({
+        name: "User 2",
+        description: "Second user",
+      });
+      expect(person1).toBeDefined();
+      expect(person2).toBeDefined();
+    });
+
+    it("should add multiple SoftwareSystem elements", () => {
+      const context = new Context();
+      const system1 = context.addSoftwareSystem({
+        name: "System 1",
+        description: "First system",
+      });
+      const system2 = context.addSoftwareSystem({
+        name: "System 2",
+        description: "Second system",
+      });
+      expect(system1).toBeDefined();
+      expect(system2).toBeDefined();
+    });
+
+    it("should add multiple ExternalSoftwareSystem elements", () => {
+      const context = new Context();
+      const external1 = context.addExternalSoftwareSystem({
+        name: "External 1",
+        description: "First external",
+      });
+      const external2 = context.addExternalSoftwareSystem({
+        name: "External 2",
+        description: "Second external",
+      });
+      expect(external1).toBeDefined();
+      expect(external2).toBeDefined();
+    });
+
+    it("should add mixed element types", () => {
+      const context = new Context();
+      const person = context.addPerson({
+        name: "User",
+        description: "System user",
+      });
+      const system = context.addSoftwareSystem({
+        name: "Main System",
+        description: "Primary system",
+      });
+      const external = context.addExternalSoftwareSystem({
+        name: "External Service",
+        description: "Third-party API",
+      });
+      expect(person).toBeDefined();
+      expect(system).toBeDefined();
+      expect(external).toBeDefined();
+    });
+
+    it("should add elements with special characters in names", () => {
+      const context = new Context();
+      const person = context.addPerson({
+        name: "User@2024",
+        description: "User with special chars",
+      });
+      expect(person).toBeDefined();
+    });
+
+    it("should add elements with long descriptions", () => {
+      const context = new Context();
+      const system = context.addSoftwareSystem({
+        name: "System",
+        description:
+          "A very detailed description of the software system that contains many words",
+      });
+      expect(system).toBeDefined();
+    });
+
+    it("should maintain context state after adding elements", () => {
+      const context = new Context();
+      const title = "Context with Elements";
+      const description = "A context diagram with multiple elements";
+
+      context.setTitle(title);
+      context.setDescription(description);
+
+      context.addPerson({ name: "User", description: "User" });
+      context.addSoftwareSystem({ name: "System", description: "System" });
+
+      expect(context.getTitle()).toBe(title);
+      expect(context.getDescription()).toBe(description);
+    });
+  });
 });
