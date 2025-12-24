@@ -11,6 +11,11 @@ export interface ElementConfig {
   elementType: ElementType;
 }
 
+export interface RelationConfig {
+  description: string;
+  technology: string;
+}
+
 export interface PersonConfig extends Omit<
   ElementConfig,
   "technology" | "elementType"

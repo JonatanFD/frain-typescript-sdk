@@ -1,3 +1,4 @@
+import { Relation } from "./relation";
 import { Styles } from "./styles";
 import {
   ElementType,
@@ -7,6 +8,7 @@ import {
   type ExternalSoftwareSystemConfig,
   type ContainerConfig,
   type ComponentConfig,
+  type RelationConfig,
 } from "./types";
 import {
   elementValidator,
@@ -14,9 +16,13 @@ import {
 } from "./validations";
 
 export abstract class Element {
+  private id: string;
+
   private name: string;
   private description: string;
   private technology: string;
+
+  private relations: Relation[] = []; // used to store references to other elements
 
   protected styles: Styles;
 
@@ -36,7 +42,13 @@ export abstract class Element {
     this.name = config.name;
     this.description = config.description;
     this.technology = config.technology || "";
+    this.id = crypto.randomUUID();
+
     this.styles = new Styles();
+  }
+
+  public use(element: Element, config: RelationConfig) {
+    this.relations.push(new Relation(element.id, config));
   }
 }
 

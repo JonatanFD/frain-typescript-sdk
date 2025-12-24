@@ -29,8 +29,6 @@ function main() {
     name: "Stripe",
     description: "A payment processing service",
   });
-  
-  
 }
 
 main();
