@@ -1,4 +1,4 @@
-import type { RelationConfig } from "./types";
+import type { RelationConfig, RelationJSON } from "./types";
 
 export class Relation {
     private targetId: string;
@@ -21,5 +21,13 @@ export class Relation {
 
     public getTechnology(): string {
         return this.technology;
+    }
+
+    public toJSON(): RelationJSON {
+        return {
+            targetId: this.targetId,
+            description: this.description,
+            technology: this.technology,
+        };
     }
 }

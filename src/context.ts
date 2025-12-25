@@ -1,73 +1,86 @@
 import z from "zod";
 import {
-  ExternalSoftwareSystem,
-  Person,
-  SoftwareSystem,
-  type Element,
+    ExternalSoftwareSystem,
+    Person,
+    SoftwareSystem,
+    type Element,
 } from "./element";
 import type {
-  ExternalSoftwareSystemConfig,
-  PersonConfig,
-  SoftwareSystemConfig,
+    ContextJSON,
+    ExternalSoftwareSystemConfig,
+    PersonConfig,
+    SoftwareSystemConfig,
 } from "./types";
 
 export class Context {
-  private title: string;
-  private description: string;
+    private title: string;
+    private description: string;
 
-  private elements: Element[];
+    private elements: Element[];
 
-  constructor() {
-    this.title = "";
-    this.description = "";
+    constructor() {
+        this.title = "";
+        this.description = "";
 
-    this.elements = [];
-  }
-
-  public setTitle(title: string): void {
-    if (z.string().min(1).max(100).safeParse(title).success) {
-      this.title = title;
-      return;
+        this.elements = [];
     }
 
-    throw new Error("Error setting title to Context Diagram");
-  }
+    public setTitle(title: string): void {
+        if (z.string().min(1).max(100).safeParse(title).success) {
+            this.title = title;
+            return;
+        }
 
-  public setDescription(description: string): void {
-    if (z.string().min(1).max(100).safeParse(description).success) {
-      this.description = description;
-      return;
+        throw new Error("Error setting title to Context Diagram");
     }
 
-    throw new Error("Error setting description to Context Diagram");
-  }
+    public setDescription(description: string): void {
+        if (z.string().min(1).max(100).safeParse(description).success) {
+            this.description = description;
+            return;
+        }
 
-  public getTitle(): string {
-    return this.title;
-  }
+        throw new Error("Error setting description to Context Diagram");
+    }
 
-  public getDescription(): string {
-    return this.description;
-  }
+    public getTitle(): string {
+        return this.title;
+    }
 
-  // Actors
-  public addPerson(config: PersonConfig): Person {
-    const person = new Person(config);
-    this.elements.push(person);
-    return person;
-  }
+    public getDescription(): string {
+        return this.description;
+    }
 
-  public addSoftwareSystem(config: SoftwareSystemConfig): SoftwareSystem {
-    const softwareSystem = new SoftwareSystem(config);
-    this.elements.push(softwareSystem);
-    return softwareSystem;
-  }
+    // Actors
+    public addPerson(config: PersonConfig): Person {
+        const person = new Person(config);
+        this.elements.push(person);
+        return person;
+    }
 
-  public addExternalSoftwareSystem(
-    config: ExternalSoftwareSystemConfig,
-  ): ExternalSoftwareSystem {
-    const externalSoftwareSystem = new ExternalSoftwareSystem(config);
-    this.elements.push(externalSoftwareSystem);
-    return externalSoftwareSystem;
-  }
+    public addSoftwareSystem(config: SoftwareSystemConfig): SoftwareSystem {
+        const softwareSystem = new SoftwareSystem(config);
+        this.elements.push(softwareSystem);
+        return softwareSystem;
+    }
+
+    public addExternalSoftwareSystem(
+        config: ExternalSoftwareSystemConfig,
+    ): ExternalSoftwareSystem {
+        const externalSoftwareSystem = new ExternalSoftwareSystem(config);
+        this.elements.push(externalSoftwareSystem);
+        return externalSoftwareSystem;
+    }
+
+    public getElements(): Element[] {
+        return this.elements;
+    }
+
+    public toJSON(): ContextJSON {
+        return {
+            title: this.title,
+            description: this.description,
+            elements: this.elements.map((element) => element.toJSON()),
+        };
+    }
 }

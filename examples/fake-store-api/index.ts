@@ -1,10 +1,13 @@
 import { Frain } from "../../src/frain";
 
-// Env variables
+// Env variables - Replace with your actual credentials or use environment variables
 const ENVIRONMENT_CONFIG = {
-    apiKey: "your_api_key_here",
-    apiSecret: "your_api_secret_here",
-    workspaceId: "your_workspace_id_here",
+    apiKey: process.env.FRAIN_API_KEY || "550e8400-e29b-41d4-a716-446655440000",
+    apiSecret:
+        process.env.FRAIN_API_SECRET || "550e8400-e29b-41d4-a716-446655440001",
+    workspaceId:
+        process.env.FRAIN_WORKSPACE_ID ||
+        "550e8400-e29b-41d4-a716-446655440002",
 };
 
 function main() {
@@ -32,6 +35,9 @@ function main() {
 
     fakeStore.use(stripe, { description: "Use", technology: "https" });
     customer.use(fakeStore, { description: "Use", technology: "" });
+
+    const payload = frain.build();
+    console.log(JSON.stringify(payload, null, 2));
 }
 
 main();

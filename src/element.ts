@@ -9,6 +9,7 @@ import {
     type ContainerConfig,
     type ComponentConfig,
     type RelationConfig,
+    type ElementJSON,
 } from "./types";
 import {
     elementValidator,
@@ -21,6 +22,7 @@ export abstract class Element {
     private name: string;
     private description: string;
     private technology: string;
+    private elementType: ElementType;
 
     private relations: Relation[] = []; // used to store references to other elements
 
@@ -44,6 +46,7 @@ export abstract class Element {
         this.name = config.name;
         this.description = config.description;
         this.technology = config.technology || "";
+        this.elementType = config.elementType;
         this.id = crypto.randomUUID();
 
         this.styles = new Styles();
@@ -59,6 +62,18 @@ export abstract class Element {
 
     public getRelations(): Relation[] {
         return this.relations;
+    }
+
+    public toJSON(): ElementJSON {
+        return {
+            id: this.id,
+            name: this.name,
+            description: this.description,
+            technology: this.technology,
+            elementType: this.elementType,
+            styles: this.styles.toJSON(),
+            relations: this.relations.map((relation) => relation.toJSON()),
+        };
     }
 }
 

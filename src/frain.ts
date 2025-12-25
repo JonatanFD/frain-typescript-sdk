@@ -1,5 +1,5 @@
 import { Context } from "./context";
-import type { FrainConfig } from "./types";
+import type { FrainConfig, FrainPayload } from "./types";
 import { frainConfigValidator } from "./validations";
 
 export class Frain {
@@ -29,5 +29,10 @@ export class Frain {
         return this.context;
     }
 
-    public build(): FrainPayload {}
+    public build(): FrainPayload {
+        return {
+            workspaceId: this.workspaceId,
+            context: this.context.toJSON(),
+        };
+    }
 }
