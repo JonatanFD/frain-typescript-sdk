@@ -31,9 +31,19 @@ export interface ExternalSoftwareSystemConfig extends Omit<
     "technology" | "elementType"
 > {}
 
-export interface ContainerConfig extends Omit<ElementConfig, "elementType"> {}
+export interface ContainedElementConfig extends ElementConfig {
+    parentId: string;
+}
 
-export interface ComponentConfig extends Omit<ElementConfig, "elementType"> {}
+export interface ContainerConfig extends Omit<
+    ContainedElementConfig,
+    "elementType"
+> {}
+
+export interface ComponentConfig extends Omit<
+    ContainedElementConfig,
+    "elementType"
+> {}
 
 export enum ElementType {
     PERSON = "person",
@@ -77,6 +87,7 @@ export interface GraphNodeJSON {
 
 export interface ElementJSON extends GraphNodeJSON {
     relations: RelationJSON[];
+    parentId?: string;
 }
 
 export interface EdgeJSON {

@@ -6,6 +6,7 @@ import {
     type PersonConfig,
     type SoftwareSystemConfig,
     type ExternalSoftwareSystemConfig,
+    type ContainedElementConfig,
     type ContainerConfig,
     type ComponentConfig,
     type RelationConfig,
@@ -110,7 +111,30 @@ export class ExternalSoftwareSystem extends Element {
     }
 }
 
-export class Container extends Element {
+export abstract class ContainedElement extends Element {
+    private parentId: string;
+
+    protected constructor(
+        config: ContainedElementConfig,
+        requireTechnology: boolean = false,
+    ) {
+        super(config, requireTechnology);
+        this.parentId = config.parentId;
+    }
+
+    public getParentId(): string {
+        return this.parentId;
+    }
+
+    public override toJSON(): ElementJSON {
+        return {
+            ...super.toJSON(),
+            parentId: this.parentId,
+        };
+    }
+}
+
+export class Container extends ContainedElement {
     constructor(config: ContainerConfig) {
         super(
             {
@@ -123,7 +147,7 @@ export class Container extends Element {
     }
 }
 
-export class Component extends Element {
+export class Component extends ContainedElement {
     constructor(config: ComponentConfig) {
         super(
             {
