@@ -66,20 +66,33 @@ export interface StylesJSON {
     backgroundColor: string;
 }
 
-export interface ElementJSON {
+export interface GraphNodeJSON {
     id: string;
     name: string;
     description: string;
     technology: string;
     elementType: ElementType;
     styles: StylesJSON;
+}
+
+export interface ElementJSON extends GraphNodeJSON {
     relations: RelationJSON[];
 }
+
+export interface EdgeJSON {
+    source: string;
+    target: string;
+    description: string;
+    technology: string;
+}
+
+export type GraphNodesIndex = Record<string, GraphNodeJSON>;
 
 export interface ContextJSON {
     title: string;
     description: string;
-    elements: ElementJSON[];
+    nodes: GraphNodesIndex;
+    edges: EdgeJSON[];
 }
 
 export interface FrainPayload {

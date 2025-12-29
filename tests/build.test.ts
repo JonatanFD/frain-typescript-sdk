@@ -1,31 +1,49 @@
 import { describe, expect, it } from "bun:test";
 import { Frain } from "../src/frain";
-import { ElementType, ElementShape } from "../src/types";
+import {
+    ElementShape,
+    ElementType,
+    type EdgeJSON,
+    type FrainPayload,
+} from "../src/types";
 
-describe("Build method", () => {
-    const validConfig = {
-        apiKey: "550e8400-e29b-41d4-a716-446655440000",
-        apiSecret: "550e8400-e29b-41d4-a716-446655440001",
-        workspaceId: "550e8400-e29b-41d4-a716-446655440002",
-    };
+const validConfig = {
+    apiKey: "550e8400-e29b-41d4-a716-446655440000",
+    apiSecret: "550e8400-e29b-41d4-a716-446655440001",
+    workspaceId: "550e8400-e29b-41d4-a716-446655440002",
+};
 
+function createFrain(): Frain {
+    return new Frain(validConfig);
+}
+
+function getNode(payload: FrainPayload, id: string) {
+    return payload.context.nodes[id];
+}
+
+function findEdge(edges: EdgeJSON[], source: string, target: string) {
+    return edges.find(
+        (edge) => edge.source === source && edge.target === target,
+    );
+}
+
+describe("Frain.build graph payload", () => {
     describe("Empty context", () => {
-        it("should build payload with empty context", () => {
-            const frain = new Frain(validConfig);
+        it("should build payload with empty graph", () => {
+            const frain = createFrain();
             const payload = frain.build();
 
-            expect(payload).toBeDefined();
             expect(payload.workspaceId).toBe(validConfig.workspaceId);
-            expect(payload.context).toBeDefined();
             expect(payload.context.title).toBe("");
             expect(payload.context.description).toBe("");
-            expect(payload.context.elements).toEqual([]);
+            expect(payload.context.nodes).toEqual({});
+            expect(payload.context.edges).toEqual([]);
         });
     });
 
-    describe("Context with title and description", () => {
-        it("should build payload with title and description", () => {
-            const frain = new Frain(validConfig);
+    describe("Context metadata", () => {
+        it("should include title and description", () => {
+            const frain = createFrain();
             const context = frain.getContext();
             context.setTitle("Test System");
             context.setDescription("A test system description");
@@ -39,9 +57,9 @@ describe("Build method", () => {
         });
     });
 
-    describe("Context with elements", () => {
-        it("should build payload with Person element", () => {
-            const frain = new Frain(validConfig);
+    describe("Node serialization", () => {
+        it("should create a node for a Person element with styles", () => {
+            const frain = createFrain();
             const context = frain.getContext();
             context.setTitle("Test");
             context.setDescription("Test");
@@ -52,21 +70,23 @@ describe("Build method", () => {
             });
 
             const payload = frain.build();
+            const personNode = getNode(payload, person.getId());
 
-            expect(payload.context.elements).toHaveLength(1);
-            expect(payload.context.elements[0].id).toBe(person.getId());
-            expect(payload.context.elements[0].name).toBe("Customer");
-            expect(payload.context.elements[0].description).toBe(
-                "A customer of the system",
-            );
-            expect(payload.context.elements[0].technology).toBe("Person");
-            expect(payload.context.elements[0].elementType).toBe(
-                ElementType.PERSON,
-            );
+            expect(personNode).toBeDefined();
+            expect(personNode.name).toBe("Customer");
+            expect(personNode.description).toBe("A customer of the system");
+            expect(personNode.technology).toBe("Person");
+            expect(personNode.elementType).toBe(ElementType.PERSON);
+            expect(personNode.styles.shape).toBe(ElementShape.PERSON);
+            expect(personNode.styles.color).toBe("#ffffff");
+            expect(personNode.styles.backgroundColor).toBe("#003668");
+            expect(
+                Object.prototype.hasOwnProperty.call(personNode, "relations"),
+            ).toBeFalsy();
         });
 
-        it("should build payload with SoftwareSystem element", () => {
-            const frain = new Frain(validConfig);
+        it("should create nodes for different element types", () => {
+            const frain = createFrain();
             const context = frain.getContext();
             context.setTitle("Test");
             context.setDescription("Test");
@@ -76,167 +96,50 @@ describe("Build method", () => {
                 description: "Main web application",
             });
 
-            const payload = frain.build();
-
-            expect(payload.context.elements).toHaveLength(1);
-            expect(payload.context.elements[0].id).toBe(system.getId());
-            expect(payload.context.elements[0].name).toBe("Web Application");
-            expect(payload.context.elements[0].description).toBe(
-                "Main web application",
-            );
-            expect(payload.context.elements[0].technology).toBe(
-                "Software System",
-            );
-            expect(payload.context.elements[0].elementType).toBe(
-                ElementType.SOFTWARE_SYSTEM,
-            );
-        });
-
-        it("should build payload with ExternalSoftwareSystem element", () => {
-            const frain = new Frain(validConfig);
-            const context = frain.getContext();
-            context.setTitle("Test");
-            context.setDescription("Test");
-
             const external = context.addExternalSoftwareSystem({
                 name: "Stripe",
                 description: "Payment processing service",
             });
 
             const payload = frain.build();
+            const systemNode = getNode(payload, system.getId());
+            const externalNode = getNode(payload, external.getId());
 
-            expect(payload.context.elements).toHaveLength(1);
-            expect(payload.context.elements[0].id).toBe(external.getId());
-            expect(payload.context.elements[0].name).toBe("Stripe");
-            expect(payload.context.elements[0].description).toBe(
-                "Payment processing service",
-            );
-            expect(payload.context.elements[0].technology).toBe(
-                "External Software System",
-            );
-            expect(payload.context.elements[0].elementType).toBe(
-                ElementType.EXTERNAL_SOFTWARE_SYSTEM,
-            );
-        });
-
-        it("should build payload with multiple elements", () => {
-            const frain = new Frain(validConfig);
-            const context = frain.getContext();
-            context.setTitle("E-commerce System");
-            context.setDescription("Online store platform");
-
-            context.addPerson({
-                name: "Customer",
-                description: "Online shopper",
-            });
-            context.addSoftwareSystem({
-                name: "Store",
-                description: "E-commerce platform",
-            });
-            context.addExternalSoftwareSystem({
-                name: "PayPal",
-                description: "Payment gateway",
+            expect(systemNode).toMatchObject({
+                id: system.getId(),
+                name: "Web Application",
+                description: "Main web application",
+                technology: "Software System",
+                elementType: ElementType.SOFTWARE_SYSTEM,
             });
 
-            const payload = frain.build();
+            expect(systemNode.styles).toMatchObject({
+                shape: ElementShape.RECTANGLE,
 
-            expect(payload.context.elements).toHaveLength(3);
-            expect(payload.context.elements[0].name).toBe("Customer");
-            expect(payload.context.elements[1].name).toBe("Store");
-            expect(payload.context.elements[2].name).toBe("PayPal");
+                color: "#ffffff",
+
+                backgroundColor: "#0055a4",
+            });
+
+            expect(externalNode).toMatchObject({
+                id: external.getId(),
+                name: "Stripe",
+                description: "Payment processing service",
+                technology: "External Software System",
+                elementType: ElementType.EXTERNAL_SOFTWARE_SYSTEM,
+            });
+            expect(externalNode.styles).toMatchObject({
+                shape: ElementShape.RECTANGLE,
+                color: "#ffffff",
+                backgroundColor: "#81788a",
+            });
         });
     });
 
-    describe("Element styles in payload", () => {
-        it("should include Person styles in payload", () => {
-            const frain = new Frain(validConfig);
+    describe("Edge serialization", () => {
+        it("should create an edge for a single relation", () => {
+            const frain = createFrain();
             const context = frain.getContext();
-            context.setTitle("Test");
-            context.setDescription("Test");
-            context.addPerson({
-                name: "User",
-                description: "System user",
-            });
-
-            const payload = frain.build();
-
-            expect(payload.context.elements[0].styles).toBeDefined();
-            expect(payload.context.elements[0].styles.shape).toBe(
-                ElementShape.PERSON,
-            );
-            expect(payload.context.elements[0].styles.color).toBe("#ffffff");
-            expect(payload.context.elements[0].styles.backgroundColor).toBe(
-                "#003668",
-            );
-        });
-
-        it("should include SoftwareSystem styles in payload", () => {
-            const frain = new Frain(validConfig);
-            const context = frain.getContext();
-            context.setTitle("Test");
-            context.setDescription("Test");
-            context.addSoftwareSystem({
-                name: "App",
-                description: "Application",
-            });
-
-            const payload = frain.build();
-
-            expect(payload.context.elements[0].styles).toBeDefined();
-            expect(payload.context.elements[0].styles.shape).toBe(
-                ElementShape.RECTANGLE,
-            );
-            expect(payload.context.elements[0].styles.color).toBe("#ffffff");
-            expect(payload.context.elements[0].styles.backgroundColor).toBe(
-                "#0055a4",
-            );
-        });
-
-        it("should include ExternalSoftwareSystem styles in payload", () => {
-            const frain = new Frain(validConfig);
-            const context = frain.getContext();
-            context.setTitle("Test");
-            context.setDescription("Test");
-            context.addExternalSoftwareSystem({
-                name: "External",
-                description: "External service",
-            });
-
-            const payload = frain.build();
-
-            expect(payload.context.elements[0].styles).toBeDefined();
-            expect(payload.context.elements[0].styles.shape).toBe(
-                ElementShape.RECTANGLE,
-            );
-            expect(payload.context.elements[0].styles.color).toBe("#ffffff");
-            expect(payload.context.elements[0].styles.backgroundColor).toBe(
-                "#81788a",
-            );
-        });
-    });
-
-    describe("Relations in payload", () => {
-        it("should include empty relations array for element without relations", () => {
-            const frain = new Frain(validConfig);
-            const context = frain.getContext();
-            context.setTitle("Test");
-            context.setDescription("Test");
-            context.addPerson({
-                name: "User",
-                description: "System user",
-            });
-
-            const payload = frain.build();
-
-            expect(payload.context.elements[0].relations).toBeDefined();
-            expect(payload.context.elements[0].relations).toEqual([]);
-        });
-
-        it("should include relations in payload", () => {
-            const frain = new Frain(validConfig);
-            const context = frain.getContext();
-            context.setTitle("Test");
-            context.setDescription("Test");
 
             const customer = context.addPerson({
                 name: "Customer",
@@ -247,30 +150,23 @@ describe("Build method", () => {
                 description: "Main application",
             });
 
-            customer.use(webApp, {
+            customer.use(webApp, { description: "Uses", technology: "HTTPS" });
+
+            const payload = frain.build();
+            const edges = payload.context.edges;
+
+            expect(edges).toHaveLength(1);
+            expect(edges[0]).toEqual({
+                source: customer.getId(),
+                target: webApp.getId(),
                 description: "Uses",
                 technology: "HTTPS",
             });
-
-            const payload = frain.build();
-
-            expect(payload.context.elements[0].relations).toHaveLength(1);
-            expect(payload.context.elements[0].relations[0].targetId).toBe(
-                webApp.getId(),
-            );
-            expect(payload.context.elements[0].relations[0].description).toBe(
-                "Uses",
-            );
-            expect(payload.context.elements[0].relations[0].technology).toBe(
-                "HTTPS",
-            );
         });
 
-        it("should include multiple relations in payload", () => {
-            const frain = new Frain(validConfig);
+        it("should create multiple edges preserving relation order", () => {
+            const frain = createFrain();
             const context = frain.getContext();
-            context.setTitle("Test");
-            context.setDescription("Test");
 
             const system = context.addSoftwareSystem({
                 name: "Main System",
@@ -295,26 +191,92 @@ describe("Build method", () => {
             });
 
             const payload = frain.build();
+            const edges = payload.context.edges;
 
-            expect(payload.context.elements[0].relations).toHaveLength(2);
-            expect(payload.context.elements[0].relations[0].targetId).toBe(
-                database.getId(),
-            );
-            expect(payload.context.elements[0].relations[0].description).toBe(
-                "Reads/writes data",
-            );
-            expect(payload.context.elements[0].relations[1].targetId).toBe(
-                cache.getId(),
-            );
-            expect(payload.context.elements[0].relations[1].description).toBe(
-                "Caches data",
-            );
+            expect(edges).toHaveLength(2);
+            expect(edges[0]).toEqual({
+                source: system.getId(),
+                target: database.getId(),
+                description: "Reads/writes data",
+                technology: "SQL",
+            });
+            expect(edges[1]).toEqual({
+                source: system.getId(),
+                target: cache.getId(),
+                description: "Caches data",
+                technology: "Redis",
+            });
+        });
+
+        it("should allow bidirectional relations between systems", () => {
+            const frain = createFrain();
+            const context = frain.getContext();
+
+            const serviceA = context.addSoftwareSystem({
+                name: "Service A",
+                description: "First microservice",
+            });
+            const serviceB = context.addSoftwareSystem({
+                name: "Service B",
+                description: "Second microservice",
+            });
+
+            serviceA.use(serviceB, {
+                description: "Publishes events to",
+                technology: "Kafka",
+            });
+            serviceB.use(serviceA, {
+                description: "Consumes events from",
+                technology: "Kafka",
+            });
+
+            const payload = frain.build();
+            const edges = payload.context.edges;
+
+            const edgeAB = findEdge(edges, serviceA.getId(), serviceB.getId());
+            const edgeBA = findEdge(edges, serviceB.getId(), serviceA.getId());
+
+            expect(edges).toHaveLength(2);
+            expect(edgeAB).toMatchObject({
+                description: "Publishes events to",
+                technology: "Kafka",
+            });
+            expect(edgeBA).toMatchObject({
+                description: "Consumes events from",
+                technology: "Kafka",
+            });
+        });
+
+        it("should include self-referential relations", () => {
+            const frain = createFrain();
+            const context = frain.getContext();
+
+            const processor = context.addSoftwareSystem({
+                name: "Task Processor",
+                description: "Processes tasks recursively",
+            });
+
+            processor.use(processor, {
+                description: "Spawns child tasks",
+                technology: "Internal queue",
+            });
+
+            const payload = frain.build();
+            const edges = payload.context.edges;
+
+            expect(edges).toHaveLength(1);
+            expect(edges[0]).toEqual({
+                source: processor.getId(),
+                target: processor.getId(),
+                description: "Spawns child tasks",
+                technology: "Internal queue",
+            });
         });
     });
 
-    describe("Fake Store API example payload", () => {
-        it("should build correct payload for Fake Store API example", () => {
-            const frain = new Frain(validConfig);
+    describe("Fake Store API example", () => {
+        it("should build the graph expected for the example", () => {
+            const frain = createFrain();
             const context = frain.getContext();
 
             context.setTitle("Fake Store API");
@@ -324,12 +286,10 @@ describe("Build method", () => {
                 name: "Customers",
                 description: "A customer",
             });
-
             const fakeStore = context.addSoftwareSystem({
                 name: "Fake Store",
                 description: "A fake store for testing purposes",
             });
-
             const stripe = context.addExternalSoftwareSystem({
                 name: "Stripe",
                 description: "A payment processing service",
@@ -340,52 +300,101 @@ describe("Build method", () => {
 
             const payload = frain.build();
 
-            // Verify structure
             expect(payload.workspaceId).toBe(validConfig.workspaceId);
             expect(payload.context.title).toBe("Fake Store API");
             expect(payload.context.description).toBe(
                 "A fake store API for testing purposes",
             );
-            expect(payload.context.elements).toHaveLength(3);
+            expect(Object.keys(payload.context.nodes)).toHaveLength(3);
+            expect(payload.context.edges).toHaveLength(2);
 
-            // Verify customer element
-            const customerElement = payload.context.elements[0];
-            expect(customerElement.name).toBe("Customers");
-            expect(customerElement.elementType).toBe(ElementType.PERSON);
-            expect(customerElement.relations).toHaveLength(1);
-            expect(customerElement.relations[0].targetId).toBe(
-                fakeStore.getId(),
-            );
-            expect(customerElement.relations[0].description).toBe("Use");
-            expect(customerElement.relations[0].technology).toBe("");
+            const customerNode = getNode(payload, customer.getId());
+            const fakeStoreNode = getNode(payload, fakeStore.getId());
+            const stripeNode = getNode(payload, stripe.getId());
 
-            // Verify fakeStore element
-            const fakeStoreElement = payload.context.elements[1];
-            expect(fakeStoreElement.name).toBe("Fake Store");
-            expect(fakeStoreElement.elementType).toBe(
-                ElementType.SOFTWARE_SYSTEM,
-            );
-            expect(fakeStoreElement.relations).toHaveLength(1);
-            expect(fakeStoreElement.relations[0].targetId).toBe(stripe.getId());
-            expect(fakeStoreElement.relations[0].description).toBe("Use");
-            expect(fakeStoreElement.relations[0].technology).toBe("https");
-
-            // Verify stripe element
-            const stripeElement = payload.context.elements[2];
-            expect(stripeElement.name).toBe("Stripe");
-            expect(stripeElement.elementType).toBe(
+            expect(customerNode.elementType).toBe(ElementType.PERSON);
+            expect(fakeStoreNode.elementType).toBe(ElementType.SOFTWARE_SYSTEM);
+            expect(stripeNode.elementType).toBe(
                 ElementType.EXTERNAL_SOFTWARE_SYSTEM,
             );
-            expect(stripeElement.relations).toHaveLength(0);
+
+            const customerEdge = findEdge(
+                payload.context.edges,
+                customer.getId(),
+                fakeStore.getId(),
+            );
+            const fakeStoreEdge = findEdge(
+                payload.context.edges,
+                fakeStore.getId(),
+                stripe.getId(),
+            );
+
+            expect(customerEdge).toEqual({
+                source: customer.getId(),
+                target: fakeStore.getId(),
+                description: "Use",
+                technology: "",
+            });
+            expect(fakeStoreEdge).toEqual({
+                source: fakeStore.getId(),
+                target: stripe.getId(),
+                description: "Use",
+                technology: "https",
+            });
         });
     });
 
-    describe("Payload JSON serialization", () => {
-        it("should produce valid JSON", () => {
-            const frain = new Frain(validConfig);
+    describe("Build immutability and snapshots", () => {
+        it("should return new payload instances on each build call", () => {
+            const frain = createFrain();
+
+            const payload1 = frain.build();
+            const payload2 = frain.build();
+
+            expect(payload1).not.toBe(payload2);
+            expect(payload1.context).not.toBe(payload2.context);
+            expect(payload1.context.nodes).not.toBe(payload2.context.nodes);
+            expect(payload1.context.edges).not.toBe(payload2.context.edges);
+        });
+
+        it("should reflect context mutations in subsequent builds", () => {
+            const frain = createFrain();
             const context = frain.getContext();
-            context.setTitle("Test System");
-            context.setDescription("Test description");
+
+            context.setTitle("Initial");
+            const payload1 = frain.build();
+            expect(payload1.context.title).toBe("Initial");
+
+            context.setTitle("Updated");
+            const payload2 = frain.build();
+            expect(payload2.context.title).toBe("Updated");
+            expect(payload1.context.title).toBe("Initial");
+        });
+
+        it("should provide a snapshot independent from external mutations", () => {
+            const frain = createFrain();
+            const context = frain.getContext();
+
+            const person = context.addPerson({
+                name: "Customer",
+                description: "Uses the system",
+            });
+
+            const payload1 = frain.build();
+            const node = getNode(payload1, person.getId());
+            node.name = "Mutated";
+
+            const payload2 = frain.build();
+            const freshNode = getNode(payload2, person.getId());
+
+            expect(freshNode.name).toBe("Customer");
+        });
+    });
+
+    describe("JSON serialization", () => {
+        it("should produce valid JSON", () => {
+            const frain = createFrain();
+            const context = frain.getContext();
 
             const person = context.addPerson({
                 name: "User",
@@ -404,78 +413,8 @@ describe("Build method", () => {
 
             const parsed = JSON.parse(jsonString);
             expect(parsed.workspaceId).toBe(validConfig.workspaceId);
-            expect(parsed.context.title).toBe("Test System");
-            expect(parsed.context.elements).toHaveLength(2);
-        });
-
-        it("should maintain element order in JSON", () => {
-            const frain = new Frain(validConfig);
-            const context = frain.getContext();
-            context.setTitle("Test");
-            context.setDescription("Test");
-
-            context.addPerson({ name: "First", description: "First element" });
-            context.addSoftwareSystem({
-                name: "Second",
-                description: "Second element",
-            });
-            context.addExternalSoftwareSystem({
-                name: "Third",
-                description: "Third element",
-            });
-
-            const payload = frain.build();
-            const parsed = JSON.parse(JSON.stringify(payload));
-
-            expect(parsed.context.elements[0].name).toBe("First");
-            expect(parsed.context.elements[1].name).toBe("Second");
-            expect(parsed.context.elements[2].name).toBe("Third");
-        });
-    });
-
-    describe("Build immutability", () => {
-        it("should return new payload object on each build call", () => {
-            const frain = new Frain(validConfig);
-            const context = frain.getContext();
-            context.setTitle("Test");
-            context.setDescription("Test");
-
-            const payload1 = frain.build();
-            const payload2 = frain.build();
-
-            expect(payload1).not.toBe(payload2);
-            expect(payload1.context).not.toBe(payload2.context);
-        });
-
-        it("should reflect context changes in subsequent builds", () => {
-            const frain = new Frain(validConfig);
-            const context = frain.getContext();
-            context.setTitle("Initial Title");
-            context.setDescription("Test");
-
-            const payload1 = frain.build();
-            expect(payload1.context.title).toBe("Initial Title");
-
-            context.setTitle("Updated Title");
-            const payload2 = frain.build();
-            expect(payload2.context.title).toBe("Updated Title");
-
-            // First payload should still have old value (it's a snapshot)
-            expect(payload1.context.title).toBe("Initial Title");
-        });
-
-        it("should reflect new elements in subsequent builds", () => {
-            const frain = new Frain(validConfig);
-            const context = frain.getContext();
-            context.setTitle("Test");
-            context.setDescription("Test");
-
-            const payload1 = frain.build();
-            expect(payload1.context.elements).toHaveLength(0);
-
-            context.addPerson({ name: "User", description: "User" });
-            const payload2 = frain.build();
-            expect(payload2.context.elements).toHaveLength(1);
+            expect(Object.keys(parsed.context.nodes)).toHaveLength(2);
+            expect(parsed.context.edges).toHaveLength(1);
         });
     });
 });

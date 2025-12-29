@@ -5,6 +5,7 @@ import {
     SoftwareSystem,
     type Element,
 } from "./element";
+import { GraphBuilder } from "./graph";
 import type {
     ContextJSON,
     ExternalSoftwareSystemConfig,
@@ -77,10 +78,14 @@ export class Context {
     }
 
     public toJSON(): ContextJSON {
-        return {
+        const serializedElements = this.elements.map((element) =>
+            element.toJSON(),
+        );
+
+        return GraphBuilder.build({
             title: this.title,
             description: this.description,
-            elements: this.elements.map((element) => element.toJSON()),
-        };
+            elements: serializedElements,
+        });
     }
 }
