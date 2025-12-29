@@ -1,4 +1,4 @@
-mimport { createScopedLogger } from "./logger";
+import { createScopedLogger } from "./logger";
 import type {
     ContextJSON,
     EdgeJSON,
