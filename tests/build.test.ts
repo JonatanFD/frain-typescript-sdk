@@ -37,6 +37,7 @@ describe("Frain.build graph payload", () => {
             expect(payload.views.systemContext.title).toBe("");
             expect(payload.views.systemContext.description).toBe("");
             expect(payload.views.containerViews).toEqual([]);
+            expect(payload.views.componentViews).toEqual([]);
             expect(payload.nodes).toEqual({});
             expect(payload.edges).toEqual([]);
         });

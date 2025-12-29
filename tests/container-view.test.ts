@@ -26,12 +26,15 @@ describe("ContainerView", () => {
 
             const view = frain.createContainerView(system, {
                 title: "Banking System Containers",
-                description: "Shows the internal structure of the banking system",
+                description:
+                    "Shows the internal structure of the banking system",
             });
 
             expect(view).toBeInstanceOf(ContainerView);
             expect(view.getTitle()).toBe("Banking System Containers");
-            expect(view.getDescription()).toBe("Shows the internal structure of the banking system");
+            expect(view.getDescription()).toBe(
+                "Shows the internal structure of the banking system",
+            );
             expect(view.getTargetSystemId()).toBe(system.getId());
         });
 
@@ -132,7 +135,9 @@ describe("ContainerView", () => {
             expect(json.type).toBe("container-view");
             expect(json.targetSystemId).toBe(system.getId());
             expect(json.title).toBe("API Gateway Architecture");
-            expect(json.description).toBe("Internal structure of the API gateway");
+            expect(json.description).toBe(
+                "Internal structure of the API gateway",
+            );
         });
 
         it("should include container views in build payload", () => {
@@ -190,8 +195,12 @@ describe("ContainerView", () => {
             const payload = frain.build();
 
             expect(payload.views.containerViews).toHaveLength(2);
-            expect(payload.views.containerViews[0].title).toBe("Frontend Architecture");
-            expect(payload.views.containerViews[1].title).toBe("Backend Architecture");
+            expect(payload.views.containerViews[0].title).toBe(
+                "Frontend Architecture",
+            );
+            expect(payload.views.containerViews[1].title).toBe(
+                "Backend Architecture",
+            );
         });
     });
 
@@ -302,13 +311,17 @@ describe("ContainerView", () => {
             expect(payload.edges).toHaveLength(2);
 
             const frontendToBackend = payload.edges.find(
-                (e) => e.source === frontend.getId() && e.target === backend.getId()
+                (e) =>
+                    e.source === frontend.getId() &&
+                    e.target === backend.getId(),
             );
             expect(frontendToBackend).toBeDefined();
             expect(frontendToBackend?.description).toBe("Makes API calls to");
 
             const backendToDb = payload.edges.find(
-                (e) => e.source === backend.getId() && e.target === database.getId()
+                (e) =>
+                    e.source === backend.getId() &&
+                    e.target === database.getId(),
             );
             expect(backendToDb).toBeDefined();
             expect(backendToDb?.description).toBe("Reads from and writes to");
@@ -342,7 +355,7 @@ describe("ContainerView", () => {
             const payload = frain.build();
 
             const edge = payload.edges.find(
-                (e) => e.source === user.getId() && e.target === webApp.getId()
+                (e) => e.source === user.getId() && e.target === webApp.getId(),
             );
             expect(edge).toBeDefined();
             expect(edge?.description).toBe("Uses");
@@ -378,7 +391,7 @@ describe("ContainerView", () => {
             const edge = payload.edges.find(
                 (e) =>
                     e.source === paymentService.getId() &&
-                    e.target === externalPayment.getId()
+                    e.target === externalPayment.getId(),
             );
             expect(edge).toBeDefined();
             expect(edge?.description).toBe("Processes payments via");
@@ -426,7 +439,8 @@ describe("ContainerView", () => {
             // Add main system
             const bankingSystem = context.addSoftwareSystem({
                 name: "Internet Banking System",
-                description: "Allows customers to view their accounts and make payments",
+                description:
+                    "Allows customers to view their accounts and make payments",
             });
 
             // Add external systems
@@ -443,31 +457,36 @@ describe("ContainerView", () => {
             // Add containers to the banking system
             const webApp = frain.addContainer(bankingSystem, {
                 name: "Web Application",
-                description: "Delivers static content and the Internet banking SPA",
+                description:
+                    "Delivers static content and the Internet banking SPA",
                 technology: "Java / Spring MVC",
             });
 
             const singlePageApp = frain.addContainer(bankingSystem, {
                 name: "Single-Page Application",
-                description: "Provides Internet banking functionality via web browser",
+                description:
+                    "Provides Internet banking functionality via web browser",
                 technology: "JavaScript / Angular",
             });
 
             const mobileApp = frain.addContainer(bankingSystem, {
                 name: "Mobile App",
-                description: "Provides Internet banking functionality via mobile device",
+                description:
+                    "Provides Internet banking functionality via mobile device",
                 technology: "Xamarin",
             });
 
             const apiApp = frain.addContainer(bankingSystem, {
                 name: "API Application",
-                description: "Provides Internet banking functionality via JSON/HTTPS API",
+                description:
+                    "Provides Internet banking functionality via JSON/HTTPS API",
                 technology: "Java / Spring MVC",
             });
 
             const database = frain.addContainer(bankingSystem, {
                 name: "Database",
-                description: "Stores user registration, authentication, and access logs",
+                description:
+                    "Stores user registration, authentication, and access logs",
                 technology: "Oracle Database",
             });
 
@@ -488,7 +507,8 @@ describe("ContainerView", () => {
             });
 
             bankingSystem.use(mainframe, {
-                description: "Gets account information from, makes payments using",
+                description:
+                    "Gets account information from, makes payments using",
                 technology: "XML/HTTPS",
             });
 
@@ -541,23 +561,28 @@ describe("ContainerView", () => {
             // Create container view
             frain.createContainerView(bankingSystem, {
                 title: "Internet Banking System - Container View",
-                description: "The container diagram for the Internet Banking System",
+                description:
+                    "The container diagram for the Internet Banking System",
             });
 
             // Build and verify
             const payload = frain.build();
 
             // Verify context
-            expect(payload.views.systemContext.title).toBe("Internet Banking System");
+            expect(payload.views.systemContext.title).toBe(
+                "Internet Banking System",
+            );
 
             // Verify all nodes exist (2 persons + 1 system + 2 external + 5 containers = 10)
             expect(Object.keys(payload.nodes)).toHaveLength(10);
 
             // Verify container view
             expect(payload.views.containerViews).toHaveLength(1);
-            expect(payload.views.containerViews[0].targetSystemId).toBe(bankingSystem.getId());
+            expect(payload.views.containerViews[0].targetSystemId).toBe(
+                bankingSystem.getId(),
+            );
             expect(payload.views.containerViews[0].title).toBe(
-                "Internet Banking System - Container View"
+                "Internet Banking System - Container View",
             );
 
             // Verify some key relations exist
@@ -566,21 +591,27 @@ describe("ContainerView", () => {
 
             // Check customer -> webApp relation
             const customerToWebApp = edges.find(
-                (e) => e.source === customer.getId() && e.target === webApp.getId()
+                (e) =>
+                    e.source === customer.getId() &&
+                    e.target === webApp.getId(),
             );
             expect(customerToWebApp).toBeDefined();
             expect(customerToWebApp?.description).toBe("Visits");
 
             // Check apiApp -> database relation
             const apiToDb = edges.find(
-                (e) => e.source === apiApp.getId() && e.target === database.getId()
+                (e) =>
+                    e.source === apiApp.getId() &&
+                    e.target === database.getId(),
             );
             expect(apiToDb).toBeDefined();
             expect(apiToDb?.technology).toBe("JDBC");
 
             // Check apiApp -> external system relation
             const apiToMainframe = edges.find(
-                (e) => e.source === apiApp.getId() && e.target === mainframe.getId()
+                (e) =>
+                    e.source === apiApp.getId() &&
+                    e.target === mainframe.getId(),
             );
             expect(apiToMainframe).toBeDefined();
             expect(apiToMainframe?.technology).toBe("XML/HTTPS");
@@ -616,12 +647,14 @@ describe("ContainerView", () => {
             });
 
             const view = frain.createContainerView(system, {
-                title: "Title with <special> & \"characters\"",
+                title: 'Title with <special> & "characters"',
                 description: "Description with\nnewlines\tand\ttabs",
             });
 
-            expect(view.getTitle()).toBe("Title with <special> & \"characters\"");
-            expect(view.getDescription()).toBe("Description with\nnewlines\tand\ttabs");
+            expect(view.getTitle()).toBe('Title with <special> & "characters"');
+            expect(view.getDescription()).toBe(
+                "Description with\nnewlines\tand\ttabs",
+            );
         });
 
         it("should return target system reference", () => {
@@ -669,6 +702,138 @@ describe("ContainerView", () => {
             const parsed = JSON.parse(jsonString);
             expect(parsed.views.containerViews).toHaveLength(1);
             expect(parsed.views.containerViews[0].type).toBe("container-view");
+        });
+    });
+
+    describe("Parent ID in payload nodes", () => {
+        it("should include parentId for containers in payload nodes", () => {
+            const frain = createFrain();
+            const context = frain.getContext();
+
+            const system = context.addSoftwareSystem({
+                name: "Banking System",
+                description: "Core banking",
+            });
+
+            const webApp = frain.addContainer(system, {
+                name: "Web Application",
+                description: "Frontend",
+                technology: "React",
+            });
+
+            const apiServer = frain.addContainer(system, {
+                name: "API Server",
+                description: "Backend API",
+                technology: "Node.js",
+            });
+
+            const payload = frain.build();
+
+            // Containers should have parentId pointing to the system
+            const webAppNode = payload.nodes[webApp.getId()];
+            expect(webAppNode.parentId).toBe(system.getId());
+
+            const apiServerNode = payload.nodes[apiServer.getId()];
+            expect(apiServerNode.parentId).toBe(system.getId());
+
+            // System should not have parentId
+            const systemNode = payload.nodes[system.getId()];
+            expect(systemNode.parentId).toBeUndefined();
+        });
+
+        it("should not include parentId for top-level elements", () => {
+            const frain = createFrain();
+            const context = frain.getContext();
+
+            const person = context.addPerson({
+                name: "User",
+                description: "A user",
+            });
+
+            const system = context.addSoftwareSystem({
+                name: "System",
+                description: "A system",
+            });
+
+            const externalSystem = context.addExternalSoftwareSystem({
+                name: "External",
+                description: "External system",
+            });
+
+            const payload = frain.build();
+
+            expect(payload.nodes[person.getId()].parentId).toBeUndefined();
+            expect(payload.nodes[system.getId()].parentId).toBeUndefined();
+            expect(
+                payload.nodes[externalSystem.getId()].parentId,
+            ).toBeUndefined();
+        });
+
+        it("should preserve hierarchy in JSON serialization", () => {
+            const frain = createFrain();
+            const context = frain.getContext();
+
+            const system = context.addSoftwareSystem({
+                name: "E-commerce",
+                description: "Online store",
+            });
+
+            const container = frain.addContainer(system, {
+                name: "Order Service",
+                description: "Handles orders",
+                technology: "Go",
+            });
+
+            const payload = frain.build();
+            const jsonString = JSON.stringify(payload);
+            const parsed = JSON.parse(jsonString);
+
+            // Verify parentId survives JSON serialization
+            const containerNode = parsed.nodes[container.getId()];
+            expect(containerNode.parentId).toBe(system.getId());
+        });
+
+        it("should allow frontend to reconstruct hierarchy from parentId", () => {
+            const frain = createFrain();
+            const context = frain.getContext();
+
+            const system = context.addSoftwareSystem({
+                name: "Platform",
+                description: "Main platform",
+            });
+
+            const container1 = frain.addContainer(system, {
+                name: "Service A",
+                description: "First service",
+                technology: "Java",
+            });
+
+            const container2 = frain.addContainer(system, {
+                name: "Service B",
+                description: "Second service",
+                technology: "Python",
+            });
+
+            const container3 = frain.addContainer(system, {
+                name: "Service C",
+                description: "Third service",
+                technology: "Rust",
+            });
+
+            const payload = frain.build();
+
+            // Simulate frontend logic to find all containers of a system
+            const systemId = system.getId();
+            const containersOfSystem = Object.values(payload.nodes).filter(
+                (node) => node.parentId === systemId,
+            );
+
+            expect(containersOfSystem).toHaveLength(3);
+            expect(containersOfSystem.map((n) => n.name).sort()).toEqual([
+                "Service A",
+                "Service B",
+                "Service C",
+            ]);
         });
     });
 });

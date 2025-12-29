@@ -18,6 +18,7 @@ import {
 } from "./validations";
 
 export type ContainerCreationConfig = Omit<ContainerConfig, "parentId">;
+export type ComponentCreationConfig = Omit<ComponentConfig, "parentId">;
 
 export abstract class Element {
     private id: string;
@@ -157,6 +158,8 @@ export abstract class ContainedElement extends Element {
 }
 
 export class Container extends ContainedElement {
+    private components: Component[] = [];
+
     constructor(config: ContainerConfig) {
         super(
             {
@@ -166,6 +169,24 @@ export class Container extends ContainedElement {
             true,
         );
         this.styles = Styles.createContainer();
+    }
+
+    /**
+     * Creates a new Component as a child of this Container.
+     * Note: The component must be registered in the global element list
+     * by the orchestrator (Frain) to appear in the final output.
+     */
+    public addComponent(config: ComponentCreationConfig): Component {
+        const component = new Component({
+            ...config,
+            parentId: this.getId(),
+        });
+        this.components.push(component);
+        return component;
+    }
+
+    public getComponents(): Component[] {
+        return this.components;
     }
 }
 

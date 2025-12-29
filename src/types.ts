@@ -1,3 +1,4 @@
+import type { ComponentViewJSON } from "./component-view";
 import type { ContainerViewJSON } from "./container-view";
 
 export interface FrainConfig {
@@ -85,6 +86,7 @@ export interface GraphNodeJSON {
     technology: string;
     elementType: ElementType;
     styles: StylesJSON;
+    parentId?: string;
 }
 
 export interface ElementJSON extends GraphNodeJSON {
@@ -109,6 +111,7 @@ export interface ContextJSON {
 export interface ViewsJSON {
     systemContext: ContextJSON;
     containerViews: ContainerViewJSON[];
+    componentViews: ComponentViewJSON[];
 }
 
 export interface FrainPayload {

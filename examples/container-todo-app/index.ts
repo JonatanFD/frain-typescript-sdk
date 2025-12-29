@@ -20,9 +20,7 @@ function main() {
         "C4 Context diagram for a Todo application with premium features",
     );
 
-    // ===========================================
     // 1. DEFINE THE MODEL (Structure)
-    // ===========================================
 
     // Persons
     const freeUser = context.addPerson({
@@ -69,9 +67,7 @@ function main() {
             "Email delivery service for sending transactional emails, reminders, and notifications",
     });
 
-    // ===========================================
     // 2. ADD CONTAINERS TO TODO APP (Using Frain as orchestrator)
-    // ===========================================
 
     const webApp = frain.addContainer(todoApp, {
         name: "Web Application",
@@ -115,9 +111,52 @@ function main() {
         technology: "Node.js / TypeScript",
     });
 
-    // ===========================================
-    // 3. DEFINE RELATIONS
-    // ===========================================
+    // 3. ADD COMPONENTS TO TASK SERVICE (C4 Level 3)
+
+    const taskController = frain.addComponent(taskService, {
+        name: "Task Controller",
+        description: "REST API endpoints for task operations",
+        technology: "Express.js Router",
+    });
+
+    const taskBusinessLogic = frain.addComponent(taskService, {
+        name: "Task Business Logic",
+        description: "Core business rules for task management",
+        technology: "TypeScript",
+    });
+
+    const taskRepository = frain.addComponent(taskService, {
+        name: "Task Repository",
+        description: "Data access layer for task persistence",
+        technology: "Prisma ORM",
+    });
+
+    const taskValidator = frain.addComponent(taskService, {
+        name: "Task Validator",
+        description: "Input validation and sanitization for task data",
+        technology: "Zod",
+    });
+
+    // Add components to Notification Service
+    const notificationScheduler = frain.addComponent(notificationService, {
+        name: "Notification Scheduler",
+        description: "Schedules notifications based on task due dates",
+        technology: "Bull Queue",
+    });
+
+    const emailSender = frain.addComponent(notificationService, {
+        name: "Email Sender",
+        description: "Sends email notifications to users",
+        technology: "Nodemailer",
+    });
+
+    const pushNotifier = frain.addComponent(notificationService, {
+        name: "Push Notifier",
+        description: "Sends push notifications to mobile devices",
+        technology: "Firebase Cloud Messaging",
+    });
+
+    // 4. DEFINE RELATIONS
 
     // Context-level relations (Users to Todo App)
     freeUser.use(todoApp, {
@@ -182,6 +221,49 @@ function main() {
         technology: "Message Queue",
     });
 
+    // Component-level relations (within Task Service)
+    taskController.use(taskValidator, {
+        description: "Validates input using",
+        technology: "Method call",
+    });
+
+    taskController.use(taskBusinessLogic, {
+        description: "Delegates to",
+        technology: "Method call",
+    });
+
+    taskBusinessLogic.use(taskRepository, {
+        description: "Persists data via",
+        technology: "Method call",
+    });
+
+    taskBusinessLogic.use(notificationScheduler, {
+        description: "Schedules reminders via",
+        technology: "Message Queue",
+    });
+
+    // Component-level relations (within Notification Service)
+    notificationScheduler.use(emailSender, {
+        description: "Triggers",
+        technology: "Event",
+    });
+
+    notificationScheduler.use(pushNotifier, {
+        description: "Triggers",
+        technology: "Event",
+    });
+
+    // Component to external system relations
+    taskRepository.use(supabase, {
+        description: "Stores task data in",
+        technology: "PostgreSQL",
+    });
+
+    emailSender.use(resend, {
+        description: "Sends emails via",
+        technology: "HTTPS",
+    });
+
     // Container to External System relations
     apiGateway.use(supabase, {
         description: "Authenticates users",
@@ -225,9 +307,7 @@ function main() {
         technology: "HTTPS",
     });
 
-    // ===========================================
-    // 4. DEFINE VIEWS (Presentation Layer)
-    // ===========================================
+    // 5. DEFINE VIEWS (Presentation Layer)
 
     // Container View for Todo App (C4 Level 2)
     frain.createContainerView(todoApp, {
@@ -236,9 +316,20 @@ function main() {
             "Shows the internal structure of the Todo App system, including all containers and their interactions",
     });
 
-    // ===========================================
-    // 5. BUILD AND OUTPUT
-    // ===========================================
+    // Component View for Task Service (C4 Level 3)
+    // Note: Not all containers need a component view - only those with significant internal structure
+    frain.createComponentView(taskService, {
+        title: "Task Service - Component Diagram",
+        description:
+            "Shows the internal components of the Task Service and how they collaborate to manage tasks",
+    });
+
+    // Component View for Notification Service (C4 Level 3)
+    frain.createComponentView(notificationService, {
+        title: "Notification Service - Component Diagram",
+        description:
+            "Shows how the Notification Service processes and sends reminders through different channels",
+    });
 
     const payload = frain.build();
     console.log(JSON.stringify(payload, null, 2));

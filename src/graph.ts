@@ -43,6 +43,7 @@ export class GraphBuilder {
                 technology: element.technology,
                 elementType: element.elementType,
                 styles: element.styles,
+                ...(element.parentId && { parentId: element.parentId }),
             };
         }
 
