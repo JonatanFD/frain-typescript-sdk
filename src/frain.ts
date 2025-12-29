@@ -37,15 +37,17 @@ export class Frain {
 
         log.info({ workspaceId: this.workspaceId }, "Starting build process");
 
-        const contextGraph = this.context.toJSON();
-        const nodeCount = Object.keys(contextGraph.nodes).length;
-        const edgeCount = contextGraph.edges.length;
+        const graphOutput = this.context.toJSON();
+        const nodeCount = Object.keys(graphOutput.nodes).length;
+        const edgeCount = graphOutput.edges.length;
 
         log.debug({ nodeCount, edgeCount }, "Context graph prepared");
 
         const payload: FrainPayload = {
             workspaceId: this.workspaceId,
-            context: contextGraph,
+            nodes: graphOutput.nodes,
+            edges: graphOutput.edges,
+            context: graphOutput.context,
         };
 
         log.info(

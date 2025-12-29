@@ -18,7 +18,7 @@ function createFrain(): Frain {
 }
 
 function getNode(payload: FrainPayload, id: string) {
-    return payload.context.nodes[id];
+    return payload.nodes[id];
 }
 
 function findEdge(edges: EdgeJSON[], source: string, target: string) {
@@ -36,8 +36,8 @@ describe("Frain.build graph payload", () => {
             expect(payload.workspaceId).toBe(validConfig.workspaceId);
             expect(payload.context.title).toBe("");
             expect(payload.context.description).toBe("");
-            expect(payload.context.nodes).toEqual({});
-            expect(payload.context.edges).toEqual([]);
+            expect(payload.nodes).toEqual({});
+            expect(payload.edges).toEqual([]);
         });
     });
 
@@ -153,7 +153,7 @@ describe("Frain.build graph payload", () => {
             customer.use(webApp, { description: "Uses", technology: "HTTPS" });
 
             const payload = frain.build();
-            const edges = payload.context.edges;
+            const edges = payload.edges;
 
             expect(edges).toHaveLength(1);
             expect(edges[0]).toEqual({
@@ -191,7 +191,7 @@ describe("Frain.build graph payload", () => {
             });
 
             const payload = frain.build();
-            const edges = payload.context.edges;
+            const edges = payload.edges;
 
             expect(edges).toHaveLength(2);
             expect(edges[0]).toEqual({
@@ -231,7 +231,7 @@ describe("Frain.build graph payload", () => {
             });
 
             const payload = frain.build();
-            const edges = payload.context.edges;
+            const edges = payload.edges;
 
             const edgeAB = findEdge(edges, serviceA.getId(), serviceB.getId());
             const edgeBA = findEdge(edges, serviceB.getId(), serviceA.getId());
@@ -262,7 +262,7 @@ describe("Frain.build graph payload", () => {
             });
 
             const payload = frain.build();
-            const edges = payload.context.edges;
+            const edges = payload.edges;
 
             expect(edges).toHaveLength(1);
             expect(edges[0]).toEqual({
@@ -305,8 +305,8 @@ describe("Frain.build graph payload", () => {
             expect(payload.context.description).toBe(
                 "A fake store API for testing purposes",
             );
-            expect(Object.keys(payload.context.nodes)).toHaveLength(3);
-            expect(payload.context.edges).toHaveLength(2);
+            expect(Object.keys(payload.nodes)).toHaveLength(3);
+            expect(payload.edges).toHaveLength(2);
 
             const customerNode = getNode(payload, customer.getId());
             const fakeStoreNode = getNode(payload, fakeStore.getId());
@@ -319,12 +319,12 @@ describe("Frain.build graph payload", () => {
             );
 
             const customerEdge = findEdge(
-                payload.context.edges,
+                payload.edges,
                 customer.getId(),
                 fakeStore.getId(),
             );
             const fakeStoreEdge = findEdge(
-                payload.context.edges,
+                payload.edges,
                 fakeStore.getId(),
                 stripe.getId(),
             );
@@ -353,8 +353,8 @@ describe("Frain.build graph payload", () => {
 
             expect(payload1).not.toBe(payload2);
             expect(payload1.context).not.toBe(payload2.context);
-            expect(payload1.context.nodes).not.toBe(payload2.context.nodes);
-            expect(payload1.context.edges).not.toBe(payload2.context.edges);
+            expect(payload1.nodes).not.toBe(payload2.nodes);
+            expect(payload1.edges).not.toBe(payload2.edges);
         });
 
         it("should reflect context mutations in subsequent builds", () => {
@@ -413,8 +413,8 @@ describe("Frain.build graph payload", () => {
 
             const parsed = JSON.parse(jsonString);
             expect(parsed.workspaceId).toBe(validConfig.workspaceId);
-            expect(Object.keys(parsed.context.nodes)).toHaveLength(2);
-            expect(parsed.context.edges).toHaveLength(1);
+            expect(Object.keys(parsed.nodes)).toHaveLength(2);
+            expect(parsed.edges).toHaveLength(1);
         });
     });
 });

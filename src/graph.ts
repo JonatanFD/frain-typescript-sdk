@@ -12,10 +12,16 @@ export interface GraphBuildInput {
     elements: ElementJSON[];
 }
 
+export interface GraphBuildOutput {
+    nodes: GraphNodesIndex;
+    edges: EdgeJSON[];
+    context: ContextJSON;
+}
+
 const log = createScopedLogger("graph-builder");
 
 export class GraphBuilder {
-    public static build(input: GraphBuildInput): ContextJSON {
+    public static build(input: GraphBuildInput): GraphBuildOutput {
         const { title, description, elements } = input;
 
         log.info(
@@ -75,14 +81,16 @@ export class GraphBuilder {
         );
 
         return {
-            title,
-            description,
             nodes,
             edges,
+            context: {
+                title,
+                description,
+            },
         };
     }
 }
 
-export function buildGraph(input: GraphBuildInput): ContextJSON {
+export function buildGraph(input: GraphBuildInput): GraphBuildOutput {
     return GraphBuilder.build(input);
 }

@@ -102,11 +102,11 @@ export type GraphNodesIndex = Record<string, GraphNodeJSON>;
 export interface ContextJSON {
     title: string;
     description: string;
-    nodes: GraphNodesIndex;
-    edges: EdgeJSON[];
 }
 
 export interface FrainPayload {
     workspaceId: string;
+    nodes: GraphNodesIndex;
+    edges: EdgeJSON[];
     context: ContextJSON;
 }
