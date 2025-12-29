@@ -17,6 +17,8 @@ import {
     elementWithTechnologyValidator,
 } from "./validations";
 
+export type ContainerCreationConfig = Omit<ContainerConfig, "parentId">;
+
 export abstract class Element {
     private id: string;
 
@@ -90,6 +92,8 @@ export class Person extends Element {
 }
 
 export class SoftwareSystem extends Element {
+    private containers: Container[] = [];
+
     constructor(config: SoftwareSystemConfig) {
         super({
             ...config,
@@ -97,6 +101,24 @@ export class SoftwareSystem extends Element {
             technology: "Software System",
         });
         this.styles = Styles.createSoftwareSystem();
+    }
+
+    /**
+     * Creates a new Container as a child of this SoftwareSystem.
+     * Note: The container must be registered in the global element list
+     * by the orchestrator (Frain) to appear in the final output.
+     */
+    public addContainer(config: ContainerCreationConfig): Container {
+        const container = new Container({
+            ...config,
+            parentId: this.getId(),
+        });
+        this.containers.push(container);
+        return container;
+    }
+
+    public getContainers(): Container[] {
+        return this.containers;
     }
 }
 

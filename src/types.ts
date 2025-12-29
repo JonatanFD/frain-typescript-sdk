@@ -1,3 +1,5 @@
+import type { ContainerViewJSON } from "./container-view";
+
 export interface FrainConfig {
     apiKey: string;
     apiSecret: string;
@@ -104,9 +106,14 @@ export interface ContextJSON {
     description: string;
 }
 
+export interface ViewsJSON {
+    systemContext: ContextJSON;
+    containerViews: ContainerViewJSON[];
+}
+
 export interface FrainPayload {
     workspaceId: string;
     nodes: GraphNodesIndex;
     edges: EdgeJSON[];
-    context: ContextJSON;
+    views: ViewsJSON;
 }

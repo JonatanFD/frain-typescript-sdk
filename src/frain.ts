@@ -1,4 +1,10 @@
 import { Context } from "./context";
+import { ContainerView, type ContainerViewConfig } from "./container-view";
+import {
+    Container,
+    SoftwareSystem,
+    type ContainerCreationConfig,
+} from "./element";
 import { createScopedLogger } from "./logger";
 import type { FrainConfig, FrainPayload } from "./types";
 import { frainConfigValidator } from "./validations";
@@ -11,6 +17,7 @@ export class Frain {
     private apiSecret: string;
 
     private context: Context;
+    private containerViews: ContainerView[] = [];
 
     constructor(config: FrainConfig) {
         const validation = frainConfigValidator.safeParse(config);
@@ -32,6 +39,50 @@ export class Frain {
         return this.context;
     }
 
+    /**
+     * Creates a Container within a SoftwareSystem and registers it in the global element list.
+     * This is a convenience method that handles both creation and registration.
+     */
+    public addContainer(
+        system: SoftwareSystem,
+        config: ContainerCreationConfig,
+    ): Container {
+        const container = system.addContainer(config);
+
+        // Register the container in the global element list so it appears in the JSON output
+        this.context.getElements().push(container);
+
+        log.debug(
+            { containerId: container.getId(), systemId: system.getId() },
+            "Container added to system and registered globally",
+        );
+
+        return container;
+    }
+
+    /**
+     * Creates a ContainerView for a specific SoftwareSystem.
+     * The view represents a C4 Container diagram showing the internal structure of the system.
+     */
+    public createContainerView(
+        system: SoftwareSystem,
+        config: ContainerViewConfig,
+    ): ContainerView {
+        const view = new ContainerView(system, config);
+        this.containerViews.push(view);
+
+        log.debug(
+            { systemId: system.getId(), title: config.title },
+            "Container view created",
+        );
+
+        return view;
+    }
+
+    public getContainerViews(): ContainerView[] {
+        return this.containerViews;
+    }
+
     public build(): FrainPayload {
         const startedAt = Date.now();
 
@@ -47,7 +98,10 @@ export class Frain {
             workspaceId: this.workspaceId,
             nodes: graphOutput.nodes,
             edges: graphOutput.edges,
-            context: graphOutput.context,
+            views: {
+                systemContext: graphOutput.context,
+                containerViews: this.containerViews.map((v) => v.toJSON()),
+            },
         };
 
         log.info(
@@ -55,6 +109,7 @@ export class Frain {
                 workspaceId: this.workspaceId,
                 nodeCount,
                 edgeCount,
+                containerViewCount: this.containerViews.length,
                 durationMs: Date.now() - startedAt,
             },
             "Frain payload build complete",

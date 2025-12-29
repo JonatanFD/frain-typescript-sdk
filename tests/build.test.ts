@@ -34,8 +34,9 @@ describe("Frain.build graph payload", () => {
             const payload = frain.build();
 
             expect(payload.workspaceId).toBe(validConfig.workspaceId);
-            expect(payload.context.title).toBe("");
-            expect(payload.context.description).toBe("");
+            expect(payload.views.systemContext.title).toBe("");
+            expect(payload.views.systemContext.description).toBe("");
+            expect(payload.views.containerViews).toEqual([]);
             expect(payload.nodes).toEqual({});
             expect(payload.edges).toEqual([]);
         });
@@ -50,8 +51,8 @@ describe("Frain.build graph payload", () => {
 
             const payload = frain.build();
 
-            expect(payload.context.title).toBe("Test System");
-            expect(payload.context.description).toBe(
+            expect(payload.views.systemContext.title).toBe("Test System");
+            expect(payload.views.systemContext.description).toBe(
                 "A test system description",
             );
         });
@@ -301,8 +302,8 @@ describe("Frain.build graph payload", () => {
             const payload = frain.build();
 
             expect(payload.workspaceId).toBe(validConfig.workspaceId);
-            expect(payload.context.title).toBe("Fake Store API");
-            expect(payload.context.description).toBe(
+            expect(payload.views.systemContext.title).toBe("Fake Store API");
+            expect(payload.views.systemContext.description).toBe(
                 "A fake store API for testing purposes",
             );
             expect(Object.keys(payload.nodes)).toHaveLength(3);
@@ -352,7 +353,10 @@ describe("Frain.build graph payload", () => {
             const payload2 = frain.build();
 
             expect(payload1).not.toBe(payload2);
-            expect(payload1.context).not.toBe(payload2.context);
+            expect(payload1.views).not.toBe(payload2.views);
+            expect(payload1.views.systemContext).not.toBe(
+                payload2.views.systemContext,
+            );
             expect(payload1.nodes).not.toBe(payload2.nodes);
             expect(payload1.edges).not.toBe(payload2.edges);
         });
@@ -363,12 +367,12 @@ describe("Frain.build graph payload", () => {
 
             context.setTitle("Initial");
             const payload1 = frain.build();
-            expect(payload1.context.title).toBe("Initial");
+            expect(payload1.views.systemContext.title).toBe("Initial");
 
             context.setTitle("Updated");
             const payload2 = frain.build();
-            expect(payload2.context.title).toBe("Updated");
-            expect(payload1.context.title).toBe("Initial");
+            expect(payload2.views.systemContext.title).toBe("Updated");
+            expect(payload1.views.systemContext.title).toBe("Initial");
         });
 
         it("should provide a snapshot independent from external mutations", () => {
